@@ -1,0 +1,131 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+class BankAccount {
+    private double balance;
+
+    
+    public BankAccount(double initialBalance) {
+        balance = initialBalance;
+    }
+
+    
+    public double getBalance() {
+        return balance;
+    }
+
+    
+    public void deposit(double amount) {
+        balance += amount;
+    }
+
+    
+    public boolean withdraw(double amount) {
+        if (amount <= balance) {
+            balance -= amount;
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
+
+class ATMGUI extends JFrame implements ActionListener {
+    private BankAccount account; 
+    private JTextField balanceField; 
+    private JTextField amountField; 
+    private JTextArea outputArea; 
+
+    public ATMGUI(BankAccount account) {
+        this.account = account;
+
+        setTitle("ATM Machine");
+        setSize(400, 300);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridLayout(4, 2));
+
+        
+        JLabel balanceLabel = new JLabel("Balance:");
+        balanceField = new JTextField(Double.toString(account.getBalance()));
+        balanceField.setEditable(false);
+
+        JLabel amountLabel = new JLabel("Amount:");
+        amountField = new JTextField();
+
+        JButton checkBalanceButton = new JButton("Check Balance");
+        checkBalanceButton.addActionListener(this); 
+
+        JButton depositButton = new JButton("Deposit");
+        depositButton.addActionListener(this); 
+
+        JButton withdrawButton = new JButton("Withdraw");
+        withdrawButton.addActionListener(this); 
+
+        outputArea = new JTextArea();
+        outputArea.setEditable(false); 
+
+    
+        panel.add(balanceLabel);
+        panel.add(balanceField);
+        panel.add(amountLabel);
+        panel.add(amountField);
+        panel.add(checkBalanceButton);
+        panel.add(depositButton);
+        panel.add(withdrawButton);
+        panel.add(new JScrollPane(outputArea)); 
+
+        add(panel); 
+    }
+
+    
+    public void actionPerformed(ActionEvent e) {
+        String action = e.getActionCommand(); 
+
+        try {
+            double amount = Double.parseDouble(amountField.getText());
+
+            switch (action) {
+                case "Check Balance":
+                    outputArea.setText("Your Balance is: Rs. " + account.getBalance());
+                    break;
+
+                case "Deposit":
+                    if (amount > 0) {
+                        account.deposit(amount);
+                        balanceField.setText(Double.toString(account.getBalance())); 
+                        outputArea.setText("Deposit successful.");
+                    } else {
+                        outputArea.setText("Invalid deposit amount.");
+                    }
+                    break;
+
+                case "Withdraw":
+                    if (amount > 0 && account.withdraw(amount)) {
+                        balanceField.setText(Double.toString(account.getBalance())); 
+                        outputArea.setText("Withdrawal successful.");
+                    } else {
+                        outputArea.setText("Invalid withdrawal amount or insufficient balance.");
+                    }
+                    break;
+            }
+        } catch (NumberFormatException ex) {
+            outputArea.setText("Invalid input. Please enter a valid amount.");
+        }
+    }
+}
+
+public class ATM {
+    public static void main(String[] args) {
+        
+        BankAccount userAccount = new BankAccount(1000.0);
+
+        
+        ATMGUI atmGUI = new ATMGUI(userAccount);
+        atmGUI.setVisible(true); 
+    }
+}
